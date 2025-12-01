@@ -1,0 +1,21 @@
+{
+  "name": "response-review",
+  "version": "1.0.0",
+  "description": "Review Responder AI - Aplikacja do generowania profesjonalnych odpowiedzi na opinie klientów",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.0",
+    "openai": "^6.9.1"
+  }
+}
