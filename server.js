@@ -84,7 +84,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Serwer działa na porcie ${PORT}`);
-  console.log(`📱 Otwórz http://localhost:${PORT} w przeglądarce`);
-});
+// Export dla Vercel serverless
+module.exports = app;
+
+// Local development server
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Serwer działa na porcie ${PORT}`);
+    console.log(`📱 Otwórz http://localhost:${PORT} w przeglądarce`);
+  });
+}
