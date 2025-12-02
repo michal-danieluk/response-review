@@ -6,6 +6,7 @@ const path = require('path');
 const OpenAI = require('openai');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const xss = require('xss');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,7 +53,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.vercel-analytics.com"],
+      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "https://cdn.vercel-analytics.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       connectSrc: ["'self'", "https://cdn.vercel-analytics.com"],
@@ -93,7 +94,8 @@ setInterval(() => {
 // Endpoint do generowania odpowiedzi (with rate limiting)
 app.post('/api/generate', apiLimiter, async (req, res) => {
   try {
-    const { reviewText, tone, type = 'review', honeypot } = req.body;
+    const { reviewText: rawReviewText, tone, type = 'review', honeypot } = req.body;
+    const reviewText = xss(rawReviewText);
 
     // Honeypot field check - Bot trap
     if (honeypot) {
