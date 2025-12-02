@@ -4,9 +4,21 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const OpenAI = require('openai');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Rate limiter configuration - max 5 requests per minute per IP
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: {
+    error: 'Zbyt wiele zapytań. Odpocznij chwilę i spróbuj za minutę.'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 // Middleware
 app.use(cors());
@@ -18,8 +30,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Endpoint do generowania odpowiedzi
-app.post('/api/generate', async (req, res) => {
+// Endpoint do generowania odpowiedzi (with rate limiting)
+app.post('/api/generate', apiLimiter, async (req, res) => {
   try {
     const { reviewText, tone, type = 'review' } = req.body;
 
