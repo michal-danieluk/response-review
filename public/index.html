@@ -82,7 +82,7 @@
                         onclick="switchTab('review')"
                         class="px-4 py-2 text-sm font-medium rounded-md transition-all bg-white text-slate-900 shadow-sm"
                     >
-                        Google/Allegro Reviews
+                        Opinie i Social Media
                     </button>
                     <button
                         id="tabEmail"
@@ -97,14 +97,15 @@
             <!-- Input Section -->
             <div class="mb-6">
                 <label for="inputText" class="block text-sm font-medium text-slate-900 mb-2">
-                    <span id="inputLabel">Customer review</span>
+                    <span id="inputLabel">Opinia lub komentarz</span>
                 </label>
                 <textarea
                     id="inputText"
                     rows="6"
-                    placeholder="Paste the customer review here..."
+                    placeholder="Wklej opinię klienta lub komentarz z social media..."
                     class="w-full px-4 py-3 border border-slate-300 rounded font-mono text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
                 ></textarea>
+                <p class="mt-2 text-xs text-slate-500">Wykrywam język automatycznie. Odpiszę w tym samym języku.</p>
             </div>
 
             <!-- Tone Selection -->
@@ -243,8 +244,8 @@
             if (type === 'review') {
                 tabReview.className = 'px-4 py-2 text-sm font-medium rounded-md transition-all bg-white text-slate-900 shadow-sm';
                 tabEmail.className = 'px-4 py-2 text-sm font-medium rounded-md transition-all text-slate-600 hover:text-slate-900';
-                inputLabel.textContent = 'Customer review';
-                inputText.placeholder = 'Paste the customer review here...';
+                inputLabel.textContent = 'Opinia lub komentarz';
+                inputText.placeholder = 'Wklej opinię klienta lub komentarz z social media...';
             } else {
                 tabEmail.className = 'px-4 py-2 text-sm font-medium rounded-md transition-all bg-white text-slate-900 shadow-sm';
                 tabReview.className = 'px-4 py-2 text-sm font-medium rounded-md transition-all text-slate-600 hover:text-slate-900';
@@ -277,8 +278,8 @@
             // Validation
             if (!inputText) {
                 const errorMsg = currentType === 'review'
-                    ? 'Please enter a customer review.'
-                    : 'Please enter email content.';
+                    ? 'Wklej opinię lub komentarz.'
+                    : 'Wklej treść otrzymanego emaila.';
                 showError(errorMsg);
                 return;
             }
@@ -368,5 +369,8 @@
             }
         });
     </script>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

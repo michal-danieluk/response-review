@@ -64,6 +64,8 @@ Treść:
 
 ${toneInstruction}
 
+DETECT the language of the input text. Your response MUST be in the SAME language as the input.
+
 Nie używaj hashtagów. Bądź konkretny. Zwróć tylko sformatowany email bez dodatkowych komentarzy.`;
 
       userPrompt = `Email do odpowiedzi:\n\n${reviewText}`;
@@ -71,7 +73,7 @@ Nie używaj hashtagów. Bądź konkretny. Zwróć tylko sformatowany email bez d
       // Review mode (default)
       const toneInstruction = reviewToneInstructions[tone] || reviewToneInstructions['professional'];
 
-      systemPrompt = `Jesteś ekspertem ds. wizerunku i obsługi klienta (Customer Success). Twoim zadaniem jest tworzenie profesjonalnych, uprzejmych i budujących zaufanie odpowiedzi na opinie klientów. Nigdy nie bądź agresywny. Jeśli opinia jest negatywna, zaproponuj rozwiązanie i zachęć do kontaktu. ${toneInstruction} Zwróć tylko treść odpowiedzi bez cudzysłowów i dodatkowych komentarzy.`;
+      systemPrompt = `Jesteś ekspertem ds. wizerunku i obsługi klienta (Customer Success). Twoim zadaniem jest tworzenie profesjonalnych, uprzejmych i budujących zaufanie odpowiedzi na opinie klientów. Nigdy nie bądź agresywny. Jeśli opinia jest negatywna, zaproponuj rozwiązanie i zachęć do kontaktu. ${toneInstruction} DETECT the language of the input text. Your response MUST be in the SAME language as the input. Zwróć tylko treść odpowiedzi bez cudzysłowów i dodatkowych komentarzy.`;
 
       userPrompt = `Opinia klienta: "${reviewText}"`;
     }
