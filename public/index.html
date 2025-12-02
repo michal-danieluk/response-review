@@ -126,7 +126,20 @@
                     placeholder="Wklej opinię klienta lub komentarz z social media..."
                     data-i18n-placeholder="placeholderReview"
                     class="w-full px-4 py-3 border border-slate-300 rounded font-mono text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                    maxlength="5000"
                 ></textarea>
+
+                <!-- Honeypot field - hidden from users, bots will fill it -->
+                <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    autocomplete="off"
+                    tabindex="-1"
+                    style="position: absolute; left: -9999px; width: 1px; height: 1px;"
+                    aria-hidden="true"
+                />
+
                 <p class="mt-2 text-xs text-slate-500" data-i18n="languageNotice">Wykrywam język automatycznie. Odpiszę w tym samym języku.</p>
             </div>
 
@@ -490,6 +503,7 @@
         async function generateResponse() {
             const inputText = document.getElementById('inputText').value.trim();
             const tone = document.getElementById('tone').value;
+            const honeypot = document.getElementById('website').value; // Bot trap
             const generateBtn = document.getElementById('generateBtn');
             const btnText = document.getElementById('btnText');
             const spinner = document.getElementById('spinner');
@@ -501,6 +515,12 @@
             if (!inputText) {
                 const errorMsg = currentType === 'review' ? t.errorReview : t.errorEmail;
                 showError(errorMsg);
+                return;
+            }
+
+            // Client-side length validation
+            if (inputText.length > 5000) {
+                showError('Tekst jest za długi. Maksymalnie 5000 znaków. / Text is too long. Maximum 5000 characters.');
                 return;
             }
 
@@ -522,7 +542,8 @@
                     body: JSON.stringify({
                         reviewText: inputText,
                         tone,
-                        type: currentType
+                        type: currentType,
+                        honeypot // Bot trap field
                     })
                 });
 

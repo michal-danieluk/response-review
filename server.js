@@ -5,9 +5,17 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const OpenAI = require('openai');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Environment validation - CRITICAL: Check if API key is configured
+if (!process.env.OPENAI_API_KEY) {
+  console.error('❌ ERROR: OPENAI_API_KEY is not set in environment variables');
+  console.error('Please create a .env file with OPENAI_API_KEY=your_key_here');
+  process.exit(1);
+}
 
 // Trust proxy - CRITICAL for Vercel deployment
 // Without this, all requests appear to come from Vercel's proxy IP
@@ -22,11 +30,38 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Logging for monitoring
+  handler: (req, res) => {
+    console.warn(`⚠️ Rate limit exceeded for IP: ${req.ip}`);
+    res.status(429).json({
+      error: 'Zbyt wiele zapytań. Daj AI chwilę odpocząć i spróbuj za minutę. / Too many requests. Please wait a minute.'
+    });
+  }
 });
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+// CORS configuration - restrict to your domain in production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://reviewhero.vercel.app', 'https://www.reviewhero.vercel.app'] // Add your actual domain
+    : '*', // Allow all in development
+  optionsSuccessStatus: 200
+};
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.vercel-analytics.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://cdn.vercel-analytics.com"],
+      imgSrc: ["'self'", "data:"],
+    },
+  },
+}));
+app.use(cors(corsOptions));
+app.use(bodyParser.json({ limit: '10kb' })); // Request size limit: 10KB max
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Inicjalizacja klienta OpenAI
@@ -34,16 +69,62 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// Simple in-memory cache for API responses
+// Cache identical requests to save OpenAI API costs
+const responseCache = new Map();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const MAX_CACHE_SIZE = 100;
+
+// Cache cleanup - remove expired entries
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of responseCache.entries()) {
+    if (now > value.expiry) {
+      responseCache.delete(key);
+    }
+  }
+  // Limit cache size
+  if (responseCache.size > MAX_CACHE_SIZE) {
+    const oldestKey = responseCache.keys().next().value;
+    responseCache.delete(oldestKey);
+  }
+}, 5 * 60 * 1000); // Cleanup every 5 minutes
+
 // Endpoint do generowania odpowiedzi (with rate limiting)
 app.post('/api/generate', apiLimiter, async (req, res) => {
   try {
-    const { reviewText, tone, type = 'review' } = req.body;
+    const { reviewText, tone, type = 'review', honeypot } = req.body;
 
-    // Walidacja inputu
+    // Honeypot field check - Bot trap
+    if (honeypot) {
+      console.warn(`🤖 Bot detected (honeypot filled) from IP: ${req.ip}`);
+      return res.status(400).json({
+        error: 'Validation failed'
+      });
+    }
+
+    // Input validation - Empty check
     if (!reviewText || reviewText.trim().length === 0) {
       return res.status(400).json({
         error: 'Treść nie może być pusta'
       });
+    }
+
+    // Input validation - Length limit (5000 characters)
+    const MAX_INPUT_LENGTH = 5000;
+    if (reviewText.length > MAX_INPUT_LENGTH) {
+      console.warn(`⚠️ Input too long (${reviewText.length} chars) from IP: ${req.ip}`);
+      return res.status(400).json({
+        error: `Tekst jest za długi. Maksymalnie ${MAX_INPUT_LENGTH} znaków. / Text is too long. Maximum ${MAX_INPUT_LENGTH} characters.`
+      });
+    }
+
+    // Check cache first - Save OpenAI API costs
+    const cacheKey = `${type}:${tone}:${reviewText}`;
+    const cached = responseCache.get(cacheKey);
+    if (cached && Date.now() < cached.expiry) {
+      console.log(`✅ Cache hit for request from IP: ${req.ip}`);
+      return res.json({ response: cached.data });
     }
 
     // Konfiguracja dla Review Mode
@@ -122,6 +203,13 @@ Jesteś ekspertem ds. wizerunku i obsługi klienta (Customer Success). Twoim zad
     });
 
     const response = completion.choices[0].message.content.trim();
+
+    // Save to cache
+    responseCache.set(cacheKey, {
+      data: response,
+      expiry: Date.now() + CACHE_TTL
+    });
+    console.log(`💾 Response cached for key: ${cacheKey.substring(0, 50)}...`);
 
     res.json({ response });
 
