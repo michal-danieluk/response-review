@@ -65,7 +65,7 @@ const translations = {
         benefit3Desc: 'AI never gets emotional. Every response is diplomatic, even to harsh criticism.',
 
         // Footer
-        footer: '© 2024 ReviewHero'
+        footer: '© 2025 ReviewHero'
     },
     pl: {
         // Navbar
@@ -128,7 +128,7 @@ const translations = {
         benefit3Desc: 'AI nigdy się nie denerwuje. Każda odpowiedź jest dyplomatyczna, nawet wobec ostrej krytyki.',
 
         // Footer
-        footer: '© 2024 ReviewHero'
+        footer: '© 2025 ReviewHero'
     }
 };
 
@@ -316,9 +316,9 @@ async function generateResponse() {
     }
 }
 
-function copyToClipboard(event) {
+function copyToClipboard() {
     const responseText = document.getElementById('responseOutput').textContent;
-    const btn = event.currentTarget;
+    const btn = document.getElementById('copyBtn');
     const t = translations[currentLang];
 
     navigator.clipboard.writeText(responseText).then(() => {
@@ -350,13 +350,6 @@ function hideError() {
     errorMessage.classList.add('hidden');
 }
 
-// Handle Ctrl/Cmd + Enter in textarea
-document.getElementById('inputText').addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        generateResponse();
-    }
-});
-
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Detect browser language
@@ -368,4 +361,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize language UI
     changeLanguage(currentLang);
+
+    // Add event listeners (CSP-compliant, no inline handlers)
+    document.getElementById('langPL').addEventListener('click', () => changeLanguage('pl'));
+    document.getElementById('langEN').addEventListener('click', () => changeLanguage('en'));
+    document.getElementById('tabReview').addEventListener('click', () => switchTab('review'));
+    document.getElementById('tabEmail').addEventListener('click', () => switchTab('email'));
+    document.getElementById('generateBtn').addEventListener('click', generateResponse);
+    document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+
+    // Handle Ctrl/Cmd + Enter in textarea
+    document.getElementById('inputText').addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            generateResponse();
+        }
+    });
 });

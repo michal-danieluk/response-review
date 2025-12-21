@@ -12,17 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="tailwind-config.js"></script>
     <style>
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -55,18 +45,16 @@
                     <div class="flex items-center gap-1 text-xs font-medium text-slate-600">
                         <button
                             id="langPL"
-                            onclick="changeLanguage('pl')"
                             class="px-2 py-1 rounded transition-colors duration-150 hover:bg-slate-100"
                         >
-                            🇵🇱 PL
+                            PL
                         </button>
                         <span class="text-slate-400">|</span>
                         <button
                             id="langEN"
-                            onclick="changeLanguage('en')"
                             class="px-2 py-1 rounded transition-colors duration-150 bg-slate-100 text-slate-900 font-semibold"
                         >
-                            🇬🇧 EN
+                            EN
                         </button>
                     </div>
                     <span class="text-xs font-medium text-slate-500 border border-slate-200 px-2 py-1 rounded" data-i18n="badge">BETA</span>
@@ -98,7 +86,6 @@
                 <div class="flex gap-2 p-1 bg-slate-100 rounded-lg w-fit">
                     <button
                         id="tabReview"
-                        onclick="switchTab('review')"
                         class="px-4 py-2 text-sm font-medium rounded-md transition-all bg-white text-slate-900 shadow-sm"
                         data-i18n="tabReview"
                     >
@@ -106,7 +93,6 @@
                     </button>
                     <button
                         id="tabEmail"
-                        onclick="switchTab('email')"
                         class="px-4 py-2 text-sm font-medium rounded-md transition-all text-slate-600 hover:text-slate-900"
                         data-i18n="tabEmail"
                     >
@@ -162,7 +148,6 @@
             <!-- Action Button -->
             <button
                 id="generateBtn"
-                onclick="generateResponse()"
                 class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-3 px-6 rounded transition-colors duration-150 flex items-center justify-center gap-2"
             >
                 <span id="btnText" data-i18n="btnGenerate">Generate Response</span>
@@ -185,7 +170,6 @@
                     </label>
                     <button
                         id="copyBtn"
-                        onclick="copyToClipboard(event)"
                         class="flex items-center gap-2 px-3 py-2 text-slate-700 hover:text-slate-900 border border-slate-300 hover:border-slate-400 text-xs font-medium rounded transition-colors duration-150"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -54,9 +54,10 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "https://cdn.vercel-analytics.com"],
+      scriptSrcAttr: ["'none'"], // Block inline event handlers (onclick, etc.)
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'", "https://cdn.vercel-analytics.com"],
+      connectSrc: ["'self'", "https://cdn.vercel-analytics.com", "https://vitals.vercel-insights.com"],
       imgSrc: ["'self'", "data:"],
     },
   },
