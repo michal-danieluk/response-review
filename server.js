@@ -130,20 +130,20 @@ app.post('/api/generate', apiLimiter, async (req, res) => {
       return res.json({ response: cached.data });
     }
 
-    // Konfiguracja dla Review Mode
+    // Review Mode tone instructions (English to avoid language bias)
     const reviewToneInstructions = {
-      'professional': 'Odpowiedz w profesjonalny i dyplomatyczny sposób.',
-      'empathetic': 'Odpowiedz w empatyczny sposób, z przeprosinami jeśli to właściwe.',
-      'light': 'Odpowiedz w lekki i przyjazny sposób, dodając subtelny humor gdzie to stosowne.',
-      'brief': 'Odpowiedz krótko i zwięźle, maksymalnie 2-3 zdania.'
+      'professional': 'Respond in a professional and diplomatic manner.',
+      'empathetic': 'Respond with empathy, including an apology if appropriate.',
+      'light': 'Respond in a light and friendly manner, adding subtle humor where appropriate.',
+      'brief': 'Respond briefly and concisely, maximum 2-3 sentences.'
     };
 
-    // Konfiguracja dla Email Mode
+    // Email Mode tone instructions (English to avoid language bias)
     const emailToneInstructions = {
-      'assertive': 'Odpowiedź powinna być stanowcza, ale uprzejma. Wyraź jasno swoją pozycję, zachowując profesjonalizm.',
-      'explanatory': 'Odpowiedź powinna być wyjaśniająca i edukacyjna. Dokładnie wytłumacz kwestię krok po kroku.',
-      'soft': 'Odpowiedź powinna być miękka i wykazująca zrozumienie. Przyznaj rację tam gdzie to właściwe i zaproponuj kompromis.',
-      'sales': 'Odpowiedź powinna być sprzedażowa - podkreśl wartość, korzyści i zachęć do działania.'
+      'assertive': 'The response should be assertive but polite. Express your position clearly while maintaining professionalism.',
+      'explanatory': 'The response should be explanatory and educational. Explain the matter step by step.',
+      'soft': 'The response should be soft and understanding. Acknowledge where appropriate and propose a compromise.',
+      'sales': 'The response should be sales-oriented - emphasize value, benefits, and encourage action.'
     };
 
     let systemPrompt, userPrompt;
@@ -160,23 +160,23 @@ Keep responses strictly professional.
 
 ---
 
-Jesteś asystentem biurowym. Napisz odpowiedź na ten email. Formatuj to jako profesjonalny email z następującymi sekcjami:
+CRITICAL LANGUAGE RULE: You MUST detect the language of the input email and respond in THE EXACT SAME LANGUAGE. If the input is in English, respond in English. If the input is in Polish, respond in Polish. This is mandatory.
 
-Temat: [Proponowany temat odpowiedzi]
+You are an office assistant. Write a response to this email. Format it as a professional email with:
 
-Treść:
-[Treść odpowiedzi na email]
+Subject: [Proposed reply subject]
+
+Body:
+[Email response content]
 
 ---
-[Podpis - zostaw jako szablon np. "[Twoje imię]" lub "Z poważaniem,"]
+[Signature - leave as template e.g. "[Your name]" or "Best regards,"]
 
 ${toneInstruction}
 
-DETECT the language of the input text. Your response MUST be in the SAME language as the input.
+Do not use hashtags. Be specific. Return only the formatted email without additional comments.`;
 
-Nie używaj hashtagów. Bądź konkretny. Zwróć tylko sformatowany email bez dodatkowych komentarzy.`;
-
-      userPrompt = `Email do odpowiedzi:\n\n${reviewText}`;
+      userPrompt = `Email to respond to:\n\n${reviewText}`;
     } else {
       // Review mode (default)
       const toneInstruction = reviewToneInstructions[tone] || reviewToneInstructions['professional'];
@@ -189,9 +189,11 @@ Keep responses strictly professional.
 
 ---
 
-Jesteś ekspertem ds. wizerunku i obsługi klienta (Customer Success). Twoim zadaniem jest tworzenie profesjonalnych, uprzejmych i budujących zaufanie odpowiedzi na opinie klientów. Nigdy nie bądź agresywny. Jeśli opinia jest negatywna, zaproponuj rozwiązanie i zachęć do kontaktu. ${toneInstruction} DETECT the language of the input text. Your response MUST be in the SAME language as the input. Zwróć tylko treść odpowiedzi bez cudzysłowów i dodatkowych komentarzy.`;
+CRITICAL LANGUAGE RULE: You MUST detect the language of the input review and respond in THE EXACT SAME LANGUAGE. If the input is in English, respond in English. If the input is in Polish, respond in Polish. This is mandatory.
 
-      userPrompt = `Opinia klienta: "${reviewText}"`;
+You are a customer success and reputation management expert. Your task is to create professional, polite, and trust-building responses to customer reviews. Never be aggressive. If the review is negative, propose a solution and encourage contact. ${toneInstruction} Return only the response content without quotes and additional comments.`;
+
+      userPrompt = `Customer review: "${reviewText}"`;
     }
 
     // Wywołanie OpenAI API
