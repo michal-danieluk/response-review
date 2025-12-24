@@ -197,8 +197,10 @@ You are a customer success and reputation management expert. Your task is to cre
     }
 
     // Wywołanie OpenAI API
+    // Using GPT-5 Nano - optimized for simple tasks like review/email responses
+    // ~66% cheaper input ($0.05 vs $0.15/1M) and ~33% cheaper output ($0.40 vs $0.60/1M) than gpt-4o-mini
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-5-nano',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
