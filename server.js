@@ -206,7 +206,7 @@ You are a customer success and reputation management expert. Your task is to cre
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
-      max_tokens: type === 'email' ? 800 : 500
+      max_completion_tokens: type === 'email' ? 800 : 500
     });
 
     const response = completion.choices[0].message.content.trim();
